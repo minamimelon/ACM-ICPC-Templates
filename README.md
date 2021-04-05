@@ -1,1 +1,1 @@
-# ACM-ICPC-Template
+# ACM-ICPC-Templates
