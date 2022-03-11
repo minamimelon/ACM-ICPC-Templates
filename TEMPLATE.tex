@@ -239,13 +239,10 @@ int main(){
 \subsubsection{欧拉函数}
 由唯一分解定理，设 $n = \prod_{i=1}^{n}p_i^{k_i}$，其中 $p_i$ 是质数，有 $\varphi(n) = n \times \prod_{i = 1}^s{\dfrac{p_i - 1}{p_i}}$
 \begin{lstlisting}
-    int phi(int x)
-    {
+    int phi(int x){
         int ans=1;
-        for(int i=1;prime[i]*prime[i]<=x;++i)
-        {
-            if(x%prime[i]==0)
-            {
+        for(int i=1;prime[i]*prime[i]<=x;++i){
+            if(x%prime[i]==0){
                 ans*=prime[i]-1;x/=prime[i];
                 while(x%prime[i]==0)
                     ans*=prime[i],x/=prime[i];
@@ -273,6 +270,55 @@ $\sum_i^n k\space mod \space i=\sum_i^n k-i\lfloor\frac{k}{i} \rfloor =nk-\sum_i
 	}
 	printf("%lld\n",ans);
 	return 0;
+}
+\end{lstlisting}
+\subsection{莫比乌斯反演}
+\begin{lstlisting}
+const int N=50000+5;
+int mu[N],prime[N];
+int cnt;
+bool nisp[N];
+void init(int n){//线性筛mu 
+    mu[1]=1;
+    for(int i=2;i<=n;++i){
+        if(!nisp[i]){
+            prime[++cnt]=i;
+            mu[i]=-1;
+        }
+        for(int j=1;j<=cnt&&i*prime[j]<=n;++j){
+            int t=i*prime[j];
+            nisp[t]=1;
+            if(i%prime[j]==0){
+                mu[t]=0;
+                break;
+            }
+            mu[t]=-mu[i];
+        }
+    }
+}
+int k;
+int solve(int n,int m){
+    n/=k,m/=k;
+    int ret=0,rg=min(n,m);
+    for(int i=1,j;i<=rg;i=j+1){
+        j=min(n/(n/i),m/(m/i));
+        ret+=(mu[j]-mu[i-1])*(n/i)*(m/i);
+    }
+    return ret;
+}
+int main(){
+    init(50000);
+    for(int i=1;i<=50000;++i){
+        mu[i]+=mu[i-1];
+    }
+    int T;
+    scanf("%d",&T);
+    while(T--){
+        int a,b,c,d;
+        scanf("%d%d%d%d%d",&a,&b,&c,&d,&k);
+        printf("%d\n",solve(b,d)-solve(a-1,d)-solve(b,c-1)+solve(a-1,c-1));
+    }
+    return 0;
 }
 \end{lstlisting}
 \subsubsection{二次剩余}
