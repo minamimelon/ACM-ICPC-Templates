@@ -76,7 +76,7 @@ void exgcd(ll a,ll b,ll &x,ll &y){
     }
 \end{lstlisting}
 \subsubsection{乘法逆元}
-$ax\equiv1(mod\ m)$ 则x是a在模m意义下的逆元
+$ax\equiv1(\mod\ m)$ 则x是a在模m意义下的逆元
 
 a与m互质时$ax+my=gcd(a,m)=1$，求得的最小的正整数x是逆元
 \begin{lstlisting}
@@ -87,7 +87,7 @@ a与m互质时$ax+my=gcd(a,m)=1$，求得的最小的正整数x是逆元
     } 
 \end{lstlisting}
 
-费马小定理$a^{p-1}=1\ (mod\ p)$($p$是质数)
+费马小定理$a^{p-1}=1\ (\mod\ p)$($p$是质数)
 
 故$a\cdot a^{p-2}=1$
 \begin{lstlisting}
@@ -111,9 +111,9 @@ int main(){
 \end{lstlisting}
 
 \subsubsection{中国剩余定理}
-方程组$x\equiv a_i(mod\ m_i) \quad 1<=i<=n$其中$a_i$, $m_i$互质
+方程组$x\equiv a_i(\mod\ m_i) \quad 1<=i<=n$其中$a_i$, $m_i$互质
 
-$ans\equiv\sum\limits_i^na_i\cdot M_i\cdot inv(M_i,m_i)\ (mod\ M)$
+$ans\equiv\sum\limits_i^na_i\cdot M_i\cdot inv(M_i,m_i)\ (\mod\ M)$
 
 $M=\prod\limits_i^nm_i\quad M_i=M/m_i$
 \begin{lstlisting}
@@ -378,7 +378,7 @@ int main(){
 \end{lstlisting}
 \subsubsection{二次剩余}
 
-求解$x^2\equiv n(mod p)$，$p$是奇素数。
+求解$x^2\equiv n(\mod p)$，$p$是奇素数。
 
 Cipolla算法
 
@@ -1262,7 +1262,7 @@ void init(int n){
 \end{lstlisting}
 \subsubsection{Z函数ExKMP}
 字符串下标以 $0$ 为起点。
-对于个长度为 $n$ 的字符串 $s$。定义函数 $z[i]$ 表示 $s$ 和 $s[i,n-1]$（即以 $s[i]$ 开头的后缀）的最长公共前缀（LCP）的长度。$z$ 被称为 $s$ 的 **Z 函数**。特别地，$z[0] = 0$。
+对于个长度为 $n$ 的字符串 $s$。定义函数 $z[i]$ 表示 $s$ 和 $s[i,n-1]$（即以 $s[i]$ 开头的后缀）的最长公共前缀（LCP）的长度。$z$ 被称为 $s$ 的 \textbf{Z 函数}。特别地，$z[0] = 0$。
 \begin{lstlisting}
 	z[1]=n;
 	for(int i=2,l=0,r=0;i<=n;++i){
@@ -1933,7 +1933,7 @@ int main(){
 \subsection{珂朵莉树}
 用作处理\textbf{随机数据}，具有区间赋值操作的序列操作问题
 把值相同的区间合并成一个结点保存在 set 里面。
-对于add，assign 和 sum 操作，用 set 实现的珂朵莉树的复杂度为$O(nloglogn)$，而用链表实现的复杂度为$O(nlog)$。
+对于add，assign 和 sum 操作，用 set 实现的珂朵莉树的复杂度为$O(nloglogn)$，而用链表实现的复杂度为$O(n\log n)$。
 \begin{lstlisting}
 typedef long long ll;
 struct Node{
@@ -2142,6 +2142,129 @@ int main(){
     return 0;
 }
 \end{lstlisting}
+\subsection{平衡树}
+\subsubsection{Splay}
+\begin{lstlisting}
+const int MAXN=100000+5;
+typedef int Arr[MAXN];
+Arr data,ch[2],fa,siz,cnt;
+int root,tot;
+inline int son(int x){
+    return x==ch[1][fa[x]];
+}
+inline void update(int x){
+    siz[x]=siz[ch[0][x]]+siz[ch[1][x]]+cnt[x];
+}
+void rotate(int x){
+    int y=fa[x],z=fa[y],b=son(x),c=son(y),w=ch[!b][x];
+    if(z) ch[c][z]=x;
+    else root=x;
+    fa[x]=z;
+    if(w) fa[w]=y;
+    ch[b][y]=w;
+    fa[y]=x,ch[!b][x]=y;
+    update(y),update(x);
+}
+void splay(int x,int rt=0){
+    while(fa[x]!=rt){
+        int y=fa[x],z=fa[y];
+        if(z==rt)
+            rotate(x);
+        else{
+            if(son(x)==son(y))
+                rotate(y),rotate(x);
+            else rotate(x),rotate(x);
+        }	}}
+void ins(int x,int &rt=root){
+    if(!rt){
+        rt=++tot;
+        siz[rt]=cnt[rt]=1;
+        data[rt]=x;
+        return;
+    }	if(data[rt]==x){
+        ++cnt[rt],++siz[rt];
+        return;
+    }	if(data[rt]<x){
+        ins(x,ch[1][rt]);
+        fa[ch[1][rt]]=rt;
+    }	else{
+        ins(x,ch[0][rt]);
+        fa[ch[0][rt]]=rt;
+    }	update(rt);
+}
+void del(int x,int rt=root){
+    if(data[rt]==x){
+        if(cnt[rt]>1)
+            --cnt[rt],--siz[rt];
+        else{
+            splay(rt);
+            int p=-1,t=ch[1][rt];
+            while(t){
+                p=t;
+                t=ch[0][t];
+            }			if(~p){
+                splay(p,rt);
+                root=p,fa[p]=0;
+                ch[0][p]=ch[0][rt],fa[ch[0][rt]]=p;
+            }			else
+                root=ch[0][rt],fa[root]=0;
+        }		return;
+    }	if(data[rt]<x)
+        del(x,ch[1][rt]);
+    else del(x,ch[0][rt]);
+    update(rt);
+}
+int askrank(int x,int rt=root){
+    if(data[rt]==x){
+        splay(rt);
+        if(!ch[0][rt])
+            return 1;
+        else return siz[ch[0][rt]]+1;
+    }	if(data[rt]<x)
+        return askrank(x,ch[1][rt]);
+    else return askrank(x,ch[0][rt]);
+}
+int askkth(int k,int rt=root){
+    int l=ch[0][rt];
+    if(siz[l]+1<=k&&k<=siz[l]+cnt[rt])
+        return data[rt];
+    if(siz[l]+1>k)
+        return askkth(k,ch[0][rt]);
+    else return askkth(k-siz[l]-cnt[rt],ch[1][rt]);
+}
+int getpre(int x,int rt=root){
+    int ans=0;
+    while(rt){
+        if(data[rt]<x)
+            ans=data[rt],rt=ch[1][rt];
+        else rt=ch[0][rt];
+    }	return ans;
+}
+int getsuc(int x,int rt=root){
+    int ans=0;
+    while(rt){
+        if(data[rt]>x)
+            ans=data[rt],rt=ch[0][rt];
+        else rt=ch[1][rt];
+    }	return ans;
+}
+int main(){
+    int q,opt,x;
+    scanf("%d",&q);
+    while(q--){
+        scanf("%d%d",&opt,&x);
+        switch(opt){
+            case 1:ins(x);break;
+            case 2:del(x);break;
+            case 3:printf("%d\n",askrank(x));break;
+            case 4:printf("%d\n",askkth(x));break;
+            case 5:printf("%d\n",getpre(x));break;
+            default :printf("%d\n",getsuc(x));			
+        }	
+    }
+    return 0;
+}
+\end{lstlisting}
 \section{图论}
 \subsection{最短路}
 \subsubsection{SPFA}
@@ -2340,9 +2463,9 @@ int main(){
 有多少整数$b\in [0,h)$,使得$\sum\limits_{i=1}^{n}a_ix_i=b$有非负整数解。
 
 
-令$dis_i$表示最小的符合$(\sum\limits_{i=1}^{n}a_ix_i)\space mod\space a_k=i(\forall k  \in[1.n])$的$\sum\limits_{i=1}^{n}a_ix_i$, 则$i+t\cdot a_k,\forall t \in \mathbb{N}$都有解。
+令$dis_i$表示最小的符合$(\sum\limits_{i=1}^{n}a_ix_i)\space \mod\space a_k=i(\forall k  \in[1.n])$的$\sum\limits_{i=1}^{n}a_ix_i$, 则$i+t\cdot a_k,\forall t \in \mathbb{N}$都有解。
 
-$\forall i \in [0,a_k)$,$\forall j\in[1,n],j\neq k$建边$(i,(i+a_j)mod\space a_k)$,边权为$a_j$, 从0开始跑最短路可求$dis_i$,$a_k$取$a_1...a_n$中最小的可保证建边最少运行最快。
+$\forall i \in [0,a_k)$,$\forall j\in[1,n],j\neq k$建边$(i,(i+a_j)\mod\space a_k)$,边权为$a_j$, 从0开始跑最短路可求$dis_i$,$a_k$取$a_1...a_n$中最小的可保证建边最少运行最快。
 
 $$
 ans=\sum\limits_{i=1}^{n}(\lfloor\frac{h-dis_i}{a_k}\rfloor+1)
@@ -3243,6 +3366,56 @@ int main()
     }
 }  
 \end{lstlisting}
+POJ 2282 统计$[1,n]$区间内的整数要用多少个数字。数位DP 统计多个值例程。
+\begin{lstlisting}
+ll f[2][2][20],g[2][2][20][10];
+ll a[20],ans[10];
+void dfs(int pos,bool lead,bool lim){
+    if(f[lead][lim][pos]) return;
+    if(pos==0){
+        f[lead][lim][pos]=1;
+        return;
+    }
+    int rg=lim?a[pos]:9;
+    for(int i=0;i<=rg;++i){
+        bool f1=lead&&i==0,f2=lim&&i==a[pos];
+        dfs(pos-1,f1,f2);
+        f[lead][lim][pos]+=f[f1][f2][pos-1];
+        if(!f1) g[lead][lim][pos][i]+=f[f1][f2][pos-1];
+        for(int j=0;j<=9;++j){
+            g[lead][lim][pos][j]+=g[f1][f2][pos-1][j];
+        }
+    }
+}
+void solve(ll x,ll fg){
+    int pos=0;
+    while(x){
+        a[++pos]=x%10;
+        x/=10;
+    }
+    memset(f,0,sizeof f);
+    memset(g,0,sizeof g);
+    dfs(pos,1,1);
+    for(int i=0;i<=9;++i){
+        ans[i]+=fg*g[1][1][pos][i];
+    }
+}
+int main(){
+    ll l,r;
+    while(1){
+        scanf("%lld%lld",&l,&r);
+        if(l>r) swap(l,r);
+        if(l==0&&r==0) break;
+        memset(ans,0,sizeof ans);
+        solve(r,1);
+        solve(l-1,-1);
+        for(int i=0;i<=9;++i){
+            printf("%lld%c",ans[i],i==9?'\n':' ');
+        }
+    }
+    return 0;
+} 
+\end{lstlisting}
 \subsection{期望DP}
 \subsubsection{高次期望}
 一个01串中每个长度为$X$的全1子串可贡献$X^3$的分数。
@@ -3570,6 +3743,104 @@ int main(){
     for(int i=1;i<=m;++i){
         printf("%lld\n",ans[i]);
     }
+    return 0;
+}
+\end{lstlisting}
+\subsection{K-D Tree}
+\begin{lstlisting}
+const int N=2e6+5;
+int n,lc[N],rc[N];
+const int K=2;//维度 
+struct Node{
+    double x[K];
+}s[N];
+double lb[K][N],ub[K][N];
+double dist(int a,int b){
+    double ret=0;
+    for(int i=0;i<K;++i){
+        double t=s[a].x[i]-s[b].x[i];
+        ret+=t*t;
+    }
+    return ret;
+}
+int fg;
+struct cmp{
+    bool operator () (const Node &a,const Node &b){
+        return a.x[fg]<b.x[fg];
+    }
+};
+void maintain(int x){
+    for(int i=0;i<K;++i){
+        lb[i][x]=ub[i][x]=s[x].x[i];
+    }
+    if(lc[x]){
+        for(int i=0;i<K;++i){
+            lb[i][x]=min(lb[i][x],lb[i][lc[x]]);
+            ub[i][x]=max(ub[i][x],ub[i][lc[x]]);
+        }
+    }
+    if(rc[x]){
+        for(int i=0;i<K;++i){
+            lb[i][x]=min(lb[i][x],lb[i][rc[x]]);
+            ub[i][x]=max(ub[i][x],ub[i][rc[x]]);
+        }
+    }
+}
+int build(int l,int r,int dep){
+    if(l>=r) return 0;
+    int mid=l+r>>1;
+    fg=dep%K;//要比较的第几个元素 
+    nth_element(s+l,s+mid,s+r+1,cmp());
+    lc[mid]=build(l,mid-1,dep+1);
+    rc[mid]=build(mid+1,r,dep+1);
+    maintain(mid);
+    return mid;
+}
+double f(int a,int b){
+    double ret=0;
+    for(int i=0;i<K;++i){
+        if(lb[i][b]>s[a].x[i]){
+            double t=lb[i][b]-s[a].x[i];
+            ret+=t*t;
+        }
+        if(ub[i][b]<s[a].x[i]){
+            double t=s[a].x[i]-ub[i][b];
+            ret+=t*t;
+        }
+    }
+    return ret;
+}
+double ans=2e18;
+void query(int l,int r,int x){
+    if(l>r) return;
+    int mid=l+r>>1;
+    if(mid!=x) ans=min(ans,dist(x,mid));
+    if(l==r) return;
+    double d1=f(x,lc[mid]),d2=f(x,rc[mid]);
+    if(d1<ans&&d2<ans){
+        if(d1<d2){
+            query(l,mid-1,x);
+            if(d2<ans) query(mid+1,r,x);
+        }else{
+            query(mid+1,r,x);
+            if(d1<ans) query(l,mid-1,x);
+        }
+    }else{
+        if(d1<ans) query(l,mid-1,x);
+        if(d2<ans) query(mid+1,r,x);
+    }
+}
+int main(){
+    //freopen("P1257_2.in","r",stdin);
+    scanf("%d",&n);
+    for(int i=1;i<=n;++i){
+        scanf("%lf%lf",&s[i].x[0],&s[i].x[1]);
+    }
+    build(1,n,0);
+    for(int i=1;i<=n;++i){
+        query(1,n,i);
+    }
+    printf("%.4lf",sqrt(ans));
     return 0;
 }
 \end{lstlisting}

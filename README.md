@@ -1,4 +1,4 @@
-::: {.titlepage}
+::: titlepage
 :::
 
 # 数学
@@ -36,7 +36,7 @@
 
 ### 乘法逆元
 
-$ax\equiv1(mod\ m)$ 则x是a在模m意义下的逆元
+$ax\equiv1(\mod\ m)$ 则x是a在模m意义下的逆元
 
 a与m互质时$ax+my=gcd(a,m)=1$，求得的最小的正整数x是逆元
 
@@ -46,7 +46,7 @@ a与m互质时$ax+my=gcd(a,m)=1$，求得的最小的正整数x是逆元
             return (x+p)%p;
         } 
 
-费马小定理$a^{p-1}=1\ (mod\ p)$($p$是质数)
+费马小定理$a^{p-1}=1\ (\mod\ p)$($p$是质数)
 
 故$a\cdot a^{p-2}=1$
 
@@ -70,9 +70,9 @@ $O(n)$
 
 ### 中国剩余定理
 
-方程组$x\equiv a_i(mod\ m_i) \quad 1<=i<=n$其中$a_i$, $m_i$互质
+方程组$x\equiv a_i(\mod\ m_i) \quad 1<=i<=n$其中$a_i$, $m_i$互质
 
-$ans\equiv\sum\limits_i^na_i\cdot M_i\cdot inv(M_i,m_i)\ (mod\ M)$
+$ans\equiv\sum\limits_i^na_i\cdot M_i\cdot inv(M_i,m_i)\ (\mod\ M)$
 
 $M=\prod\limits_i^nm_i\quad M_i=M/m_i$
 
@@ -200,27 +200,24 @@ $M=\prod\limits_i^nm_i\quad M_i=M/m_i$
 由唯一分解定理，设 $n = \prod_{i=1}^{n}p_i^{k_i}$，其中 $p_i$ 是质数，有
 $\varphi(n) = n \times \prod_{i = 1}^s{\dfrac{p_i - 1}{p_i}}$
 
-        int phi(int x)
-        {
-            int ans=1;
-            for(int i=1;prime[i]*prime[i]<=x;++i)
-            {
-                if(x%prime[i]==0)
-                {
-                    ans*=prime[i]-1;x/=prime[i];
-                    while(x%prime[i]==0)
-                        ans*=prime[i],x/=prime[i];
-                }
+    int phi(int n){
+        int rg=sqrt(n);
+        int ans=n;
+        for(int i=2;i<=m;++i){
+            if(n%i==0){
+                ans=ans/i*(i-1);
+                while(n%i==0) n/=i;
             }
-            if(x>1) ans*=x-1;
-            return ans;
         }
+        if(n>1) ans=ans/n*(n-1);
+        return ans;
+    }
 
 欧拉定理：若 $\gcd(a, m) = 1$，则 $a^{\varphi(m)} \equiv 1 \pmod{m}$。
 
 ### 数论分块
 
-$\sum_i^n k\space mod \space i=\sum_i^n k-i\lfloor\frac{k}{i} \rfloor =nk-\sum_i^n i\lfloor\frac{k}{i}\rfloor$(luoguP2261)
+$\sum_i^n k \mod  i=\sum_i^n k-i\lfloor\frac{k}{i} \rfloor =nk-\sum_i^n i\lfloor\frac{k}{i}\rfloor$(luoguP2261)
 
         int main(){
         ll n,k;
@@ -238,9 +235,112 @@ $\sum_i^n k\space mod \space i=\sum_i^n k-i\lfloor\frac{k}{i} \rfloor =nk-\sum_i
         return 0;
     }
 
+### 莫比乌斯反演
+
+**莫比乌斯函数**
+
+$$\mu(n)=\left\{
+    \begin{array}{ll}
+    1&n=1\\
+    0&\text{n含有平方因子}\\
+    (-1)^k&k为n的本质不同的质因子个数
+    \end{array}
+\right.$$
+
+性质
+
+1\. 积性函数
+
+2\.
+
+$$\sum\limits_{d|n}\mu(d)=\left\{
+\begin{array}{ll}
+1 &n=1\\
+0 &n\neq 1
+\end{array}
+\right.$$
+
+即$$\sum\limits_{d|n}\mu(d)=\varepsilon(n)=[n=1]$$
+
+$$\mu\ast1=\epsilon$$
+
+**莫比乌斯变换**
+
+设 $f(n),g(n)$ 为两个数论函数。
+
+如果有 $f(n)=\sum_{d\mid n}g(d)$，那么有
+$g(n)=\sum_{d\mid n}\mu(d)f(\frac{n}{d})$。
+
+这种形式下，数论函数 $f(n)$ 称为数论函数 $g(n)$ 的莫比乌斯变换，数论函数
+$g(n)$ 称为数论函数 $f(n)$ 的莫比乌斯逆变换（反演）。
+
+容易看出，数论函数 $g(n)$ 的莫比乌斯变换，就是将数论函数 $g(n)$
+与常数函数 $1$ 进行狄利克雷卷积。
+
+即$f=g\ast 1 \Rightarrow g=f\ast\mu$
+
+例题 HAOI 2011
+
+$$\begin{aligned}&\sum\limits_{i=1}^n\sum\limits_{j=1}^m[\gcd(i,j)=k]\\
+=&\sum\limits_{i=1}^{\lfloor \frac{n}{k}\rfloor}\sum\limits_{j=1}^{\lfloor \frac{m}{k}\rfloor}[\gcd(i,j)=1]\\
+=&\sum\limits_{i=1}^{\lfloor \frac{n}{k}\rfloor}\sum\limits_{j=1}^{\lfloor \frac{m}{k}\rfloor}\sum\limits_{d|\gcd(i,j)}\mu(d)\end{aligned}$$
+
+交换求和顺序，先枚举$d$，原式化为
+$$\sum\limits_{d}\mu(d)\sum\limits_{i=1}^{\lfloor \frac{n}{k}\rfloor}{[d|i]}\sum\limits_{j=1}^{\lfloor \frac{m}{k}\rfloor}{[d|i]}$$
+
+易知$1\sim \lfloor\frac{t}{k}\rfloor$中$d$的倍数有$\lfloor\frac{t}{kd}\rfloor$个,故原式
+$$\sum\limits_{d}^{\min{(\lfloor\frac{n}{k}\rfloor,\lfloor\frac{m}{k}\rfloor)}}\mu(d)\lfloor\frac{n}{kd}\rfloor\lfloor\frac{m}{kd}\rfloor$$
+
+    const int N=50000+5;
+    int mu[N],prime[N];
+    int cnt;
+    bool nisp[N];
+    void init(int n){//线性筛mu 
+        mu[1]=1;
+        for(int i=2;i<=n;++i){
+            if(!nisp[i]){
+                prime[++cnt]=i;
+                mu[i]=-1;
+            }
+            for(int j=1;j<=cnt&&i*prime[j]<=n;++j){
+                int t=i*prime[j];
+                nisp[t]=1;
+                if(i%prime[j]==0){
+                    mu[t]=0;
+                    break;
+                }
+                mu[t]=-mu[i];
+            }
+        }
+    }
+    int k;
+    int solve(int n,int m){
+        n/=k,m/=k;
+        int ret=0,rg=min(n,m);
+        for(int i=1,j;i<=rg;i=j+1){
+            j=min(n/(n/i),m/(m/i));
+            ret+=(mu[j]-mu[i-1])*(n/i)*(m/i);
+        }
+        return ret;
+    }
+    int main(){
+        init(50000);
+        for(int i=1;i<=50000;++i){
+            mu[i]+=mu[i-1];
+        }
+        int T;
+        scanf("%d",&T);
+        while(T--){
+            int a,b,c,d;
+            scanf("%d%d%d%d%d",&a,&b,&c,&d,&k);
+            printf("%d\n",solve(b,d)-solve(a-1,d)-solve(b,c-1)+solve(a-1,c-1));
+        }
+        return 0;
+    }
+
 ### 二次剩余
 
-求解$x^2\equiv n(mod p)$，$p$是奇素数。
+求解$x^2\equiv n(\mod p)$，$p$是奇素数。
 
 Cipolla算法
 
@@ -1116,8 +1216,8 @@ $[0\dots L]$的数组$a$来储存线性基。
 
 字符串下标以 $0$ 为起点。 对于个长度为 $n$ 的字符串 $s$。定义函数 $z[i]$
 表示 $s$ 和 $s[i,n-1]$（即以 $s[i]$
-开头的后缀）的最长公共前缀（LCP）的长度。$z$ 被称为 $s$ 的 \*\*Z
-函数\*\*。特别地，$z[0] = 0$。
+开头的后缀）的最长公共前缀（LCP）的长度。$z$ 被称为 $s$ 的 **Z
+函数**。特别地，$z[0] = 0$。
 
         z[1]=n;
         for(int i=2,l=0,r=0;i<=n;++i){
@@ -1296,6 +1396,60 @@ $[0\dots L]$的数组$a$来储存线性基。
             printf("%d\n",cs[i]);
         }
         return 0;
+    }
+
+## 后缀数组
+
+    int sa[N],rk[N<<1],ork[N<<1],cnt[N],id[N];
+    char s[N];
+    #define fr(i,a,b) for(register int i=a;i<=b;i++)
+    #define fd(i,a,b) for(register int i=a;i>=b;i--)
+    #define set0(x) memset(x,0,sizeof x)
+    int main(){
+        scanf("%s",s+1);
+        int n=strlen(s+1),m=max(n,256);
+        fr(i,1,n) ++cnt[rk[i]=s[i]];
+        fr(i,1,m) cnt[i]+=cnt[i-1];
+        fd(i,n,1) sa[cnt[rk[i]]--]=i;
+        for(int w=1;w<n;w<<=1){
+            set0(cnt);
+            fr(i,1,n) id[i]=sa[i];//id是sa的拷贝 
+            fr(i,1,n) ++cnt[rk[id[i]+w]];//按rk[id[i]+w]排序 
+            fr(i,1,m) cnt[i]+=cnt[i-1];
+            fd(i,n,1) sa[cnt[rk[id[i]+w]]--]=id[i];
+            set0(cnt);//以上按第二关键字（当前区间的后半段的rank）计数排序 
+            fr(i,1,n) id[i]=sa[i];
+            fr(i,1,n) ++cnt[rk[id[i]]];//按rk[id[i]]排序 
+            fr(i,1,m) cnt[i]+=cnt[i-1];
+            fd(i,n,1) sa[cnt[rk[id[i]]]--]=id[i];
+            memcpy(ork,rk,sizeof rk);
+            int p=0;
+            fr(i,1,n) rk[sa[i]]=(ork[sa[i]]==ork[sa[i-1]]&&ork[sa[i]+w]==ork[sa[i-1]+w])?p:++p;
+            //若两个子串相同它们对应的rk也需要相同，所以要去重
+                //即只有前半和后半不是完全相同的串，rk才增加 
+        }
+        for(int i=1;i<=n;++i){printf("%d ",sa[i]);}
+        return 0;
+    }
+
+第二关键字无需计数排序，可做常数优化,主循环替换成以下。
+
+    for(int w=1;w<n;w<<=1,m=p){//m=p就是优化计数排序值域
+        p=0;
+        fd(i,n,n-w+1) id[++p]=i;
+        //id[i]表示第二关键字排名为i的数，第一关键字的位置（旧sa） 
+        //n-w+1后的没有第二关键字，排到最前 
+        fr(i,1,n){
+            if(sa[i]>w){id[++p]=sa[i]-w;}
+        }
+        //如果满足(sa[i]>w) 那么它可以作为别人的第二关键字，把它的第一关键字的位置添加进id就行了
+        set0(cnt);
+        fr(i,1,n) ++cnt[px[i]=rk[id[i]]];
+        fr(i,1,m) cnt[i]+=cnt[i-1];
+        fd(i,n,1) sa[cnt[px[i]]--]=id[i];
+        memcpy(ork,rk,sizeof rk);
+        p=0;
+        fr(i,1,n) rk[sa[i]]=(ork[sa[i]]==ork[sa[i-1]]&&ork[sa[i]+w]==ork[sa[i-1]+w])?p:++p;
     }
 
 # 数据结构
@@ -1735,7 +1889,7 @@ $[0\dots L]$的数组$a$来储存线性基。
 用作处理**随机数据**，具有区间赋值操作的序列操作问题
 把值相同的区间合并成一个结点保存在 set 里面。 对于add，assign 和 sum
 操作，用 set
-实现的珂朵莉树的复杂度为$O(nloglogn)$，而用链表实现的复杂度为$O(nlog)$。
+实现的珂朵莉树的复杂度为$O(nloglogn)$，而用链表实现的复杂度为$O(n\log n)$。
 
     typedef long long ll;
     struct Node{
@@ -1799,6 +1953,8 @@ $[0\dots L]$的数组$a$来储存线性基。
 
 ## 01-Trie
 
+代替普通的平衡树功能（求某个数的rank和排名k的数是什么，以及前驱和后继）
+
     typedef long long ll;
     const int MAXN=10000000;
     ll t[2][MAXN];
@@ -1851,12 +2007,220 @@ $[0\dots L]$的数组$a$来储存线性基。
                 case 2:insert(y,-1);break;
                 case 3:printf("%lld\n",askrnk(y));break;
                 case 4:printf("%lld\n",askkth(y));break;
-                case 5:printf("%lld\n",askkth(askrnk(y)-1));break;
-                case 6:printf("%lld\n",askkth(askrnk(y+1)));
+                case 5:printf("%lld\n",askkth(askrnk(y)-1));break;//前驱
+                case 6:printf("%lld\n",askkth(askrnk(y+1)));//后继
             }
         }
         return 0;
     }        
+
+经典问题，异或最大/最小值。
+
+    const int N=2e5+5,B=62;
+    int t[2][N*B];
+    ll val[N*B];
+    int cnt,root;
+    void insert(ll x){
+        bool b;int u=root;
+        for(int i=B;~i;--i){
+            b=x>>i&1ll;
+            if(!t[b][u]) 
+                t[b][u]=++cnt;
+            u=t[b][u];
+        }
+        val[u]=x;
+    }
+    ll xormax(ll x){
+        bool b;int u=root;
+        for(int i=B;~i;--i){
+            b=x>>i&1ll;
+            if(t[!b][u]) u=t[!b][u];
+            else u=t[b][u];
+        }
+        return x^val[u];
+    }
+    ll xormin(ll x){
+        bool b;int u=root;
+        for(int i=B;~i;--i){
+            b=x>>i&1ll;
+            if(t[b][u]) u=t[b][u];
+            else u=t[!b][u];
+        }
+        return x^val[u];
+    }
+
+## 分块
+
+解决区间第k小问题：块内有序，分块可直接做某数在区间内是第几小。套二分可做区间第k小。
+
+    const int N=100000+5;
+    int a[N],bl[N],nums[N];
+    vector<int> v[N];
+    int bsz;
+    int query(int L,int R,int x){//询问x为[L,R]内第几
+        int c=0;
+        for(int i=min(R,bl[L]*bsz);i>=L;--i) if(a[i]<=x) ++c;
+        if(bl[L]!=bl[R])
+            for(int i=(bl[R]-1)*bsz+1;i<=R;++i)
+                if(a[i]<=x) ++c;
+        for(int i=bl[L]+1;i<bl[R];++i)
+            c+=upper_bound(v[i].begin(),v[i].end(),x)-v[i].begin();
+        return c;
+    }
+    int main(){
+        int n,Q;
+        scanf("%d%d",&n,&Q);
+        bsz=max(1,(int)sqrt(n*log2(n)));//O(sqrt(n)log(n))的分块应把块size稍大 
+        for(int i=1;i<=n;++i){
+            scanf("%d",a+i);
+            nums[i]=a[i];
+        }
+        sort(nums+1,nums+n+1);
+        for(int i=1;i<=n;++i){
+            int b=(i-1)/bsz+1;
+            bl[i]=b;
+            v[b].push_back(a[i]);
+        }
+        int bn=bl[n];
+        for(int i=1;i<=bn;++i){
+            sort(v[i].begin(),v[i].end());
+        } 
+        while(Q--){
+            int L,R,k;scanf("%d%d%d",&L,&R,&k);
+            int l=0,r=n;
+            while(r-l>1){
+                int mid=l+r>>1;
+                if(query(L,R,nums[mid])>=k) r=mid;
+                else l=mid;
+            }
+            printf("%d\n",nums[r]);
+        }
+        return 0;
+    }
+
+## 平衡树
+
+### Splay
+
+    const int MAXN=100000+5;
+    typedef int Arr[MAXN];
+    Arr data,ch[2],fa,siz,cnt;
+    int root,tot;
+    inline int son(int x){
+        return x==ch[1][fa[x]];
+    }
+    inline void update(int x){
+        siz[x]=siz[ch[0][x]]+siz[ch[1][x]]+cnt[x];
+    }
+    void rotate(int x){
+        int y=fa[x],z=fa[y],b=son(x),c=son(y),w=ch[!b][x];
+        if(z) ch[c][z]=x;
+        else root=x;
+        fa[x]=z;
+        if(w) fa[w]=y;
+        ch[b][y]=w;
+        fa[y]=x,ch[!b][x]=y;
+        update(y),update(x);
+    }
+    void splay(int x,int rt=0){
+        while(fa[x]!=rt){
+            int y=fa[x],z=fa[y];
+            if(z==rt)
+                rotate(x);
+            else{
+                if(son(x)==son(y))
+                    rotate(y),rotate(x);
+                else rotate(x),rotate(x);
+            }   }}
+    void ins(int x,int &rt=root){
+        if(!rt){
+            rt=++tot;
+            siz[rt]=cnt[rt]=1;
+            data[rt]=x;
+            return;
+        }   if(data[rt]==x){
+            ++cnt[rt],++siz[rt];
+            return;
+        }   if(data[rt]<x){
+            ins(x,ch[1][rt]);
+            fa[ch[1][rt]]=rt;
+        }   else{
+            ins(x,ch[0][rt]);
+            fa[ch[0][rt]]=rt;
+        }   update(rt);
+    }
+    void del(int x,int rt=root){
+        if(data[rt]==x){
+            if(cnt[rt]>1)
+                --cnt[rt],--siz[rt];
+            else{
+                splay(rt);
+                int p=-1,t=ch[1][rt];
+                while(t){
+                    p=t;
+                    t=ch[0][t];
+                }           if(~p){
+                    splay(p,rt);
+                    root=p,fa[p]=0;
+                    ch[0][p]=ch[0][rt],fa[ch[0][rt]]=p;
+                }           else
+                    root=ch[0][rt],fa[root]=0;
+            }       return;
+        }   if(data[rt]<x)
+            del(x,ch[1][rt]);
+        else del(x,ch[0][rt]);
+        update(rt);
+    }
+    int askrank(int x,int rt=root){
+        if(data[rt]==x){
+            splay(rt);
+            if(!ch[0][rt])
+                return 1;
+            else return siz[ch[0][rt]]+1;
+        }   if(data[rt]<x)
+            return askrank(x,ch[1][rt]);
+        else return askrank(x,ch[0][rt]);
+    }
+    int askkth(int k,int rt=root){
+        int l=ch[0][rt];
+        if(siz[l]+1<=k&&k<=siz[l]+cnt[rt])
+            return data[rt];
+        if(siz[l]+1>k)
+            return askkth(k,ch[0][rt]);
+        else return askkth(k-siz[l]-cnt[rt],ch[1][rt]);
+    }
+    int getpre(int x,int rt=root){
+        int ans=0;
+        while(rt){
+            if(data[rt]<x)
+                ans=data[rt],rt=ch[1][rt];
+            else rt=ch[0][rt];
+        }   return ans;
+    }
+    int getsuc(int x,int rt=root){
+        int ans=0;
+        while(rt){
+            if(data[rt]>x)
+                ans=data[rt],rt=ch[0][rt];
+            else rt=ch[1][rt];
+        }   return ans;
+    }
+    int main(){
+        int q,opt,x;
+        scanf("%d",&q);
+        while(q--){
+            scanf("%d%d",&opt,&x);
+            switch(opt){
+                case 1:ins(x);break;
+                case 2:del(x);break;
+                case 3:printf("%d\n",askrank(x));break;
+                case 4:printf("%d\n",askkth(x));break;
+                case 5:printf("%d\n",getpre(x));break;
+                default :printf("%d\n",getsuc(x));          
+            }   
+        }
+        return 0;
+    }
 
 # 图论
 
@@ -2055,10 +2419,10 @@ $[0\dots L]$的数组$a$来储存线性基。
 
 有多少整数$b\in [0,h)$,使得$\sum\limits_{i=1}^{n}a_ix_i=b$有非负整数解。
 
-令$dis_i$表示最小的符合$(\sum\limits_{i=1}^{n}a_ix_i)\space mod\space a_k=i(\forall k  \in[1.n])$的$\sum\limits_{i=1}^{n}a_ix_i$,
+令$dis_i$表示最小的符合$(\sum\limits_{i=1}^{n}a_ix_i)\space \mod\space a_k=i(\forall k  \in[1.n])$的$\sum\limits_{i=1}^{n}a_ix_i$,
 则$i+t\cdot a_k,\forall t \in \mathbb{N}$都有解。
 
-$\forall i \in [0,a_k)$,$\forall j\in[1,n],j\neq k$建边$(i,(i+a_j)mod\space a_k)$,边权为$a_j$,
+$\forall i \in [0,a_k)$,$\forall j\in[1,n],j\neq k$建边$(i,(i+a_j)\mod\space a_k)$,边权为$a_j$,
 从0开始跑最短路可求$dis_i$,$a_k$取$a_1...a_n$中最小的可保证建边最少运行最快。
 
 $$ans=\sum\limits_{i=1}^{n}(\lfloor\frac{h-dis_i}{a_k}\rfloor+1)$$
@@ -2966,6 +3330,56 @@ $O(n^2m)$,但是一般算法运行很快不会达到该上界。二分图时$O(m
         }
     }  
 
+POJ 2282 统计$[1,n]$区间内的整数要用多少个数字。数位DP 统计多个值例程。
+
+    ll f[2][2][20],g[2][2][20][10];
+    ll a[20],ans[10];
+    void dfs(int pos,bool lead,bool lim){
+        if(f[lead][lim][pos]) return;
+        if(pos==0){
+            f[lead][lim][pos]=1;
+            return;
+        }
+        int rg=lim?a[pos]:9;
+        for(int i=0;i<=rg;++i){
+            bool f1=lead&&i==0,f2=lim&&i==a[pos];
+            dfs(pos-1,f1,f2);
+            f[lead][lim][pos]+=f[f1][f2][pos-1];
+            if(!f1) g[lead][lim][pos][i]+=f[f1][f2][pos-1];
+            for(int j=0;j<=9;++j){
+                g[lead][lim][pos][j]+=g[f1][f2][pos-1][j];
+            }
+        }
+    }
+    void solve(ll x,ll fg){
+        int pos=0;
+        while(x){
+            a[++pos]=x%10;
+            x/=10;
+        }
+        memset(f,0,sizeof f);
+        memset(g,0,sizeof g);
+        dfs(pos,1,1);
+        for(int i=0;i<=9;++i){
+            ans[i]+=fg*g[1][1][pos][i];
+        }
+    }
+    int main(){
+        ll l,r;
+        while(1){
+            scanf("%lld%lld",&l,&r);
+            if(l>r) swap(l,r);
+            if(l==0&&r==0) break;
+            memset(ans,0,sizeof ans);
+            solve(r,1);
+            solve(l-1,-1);
+            for(int i=0;i<=9;++i){
+                printf("%lld%c",ans[i],i==9?'\n':' ');
+            }
+        }
+        return 0;
+    } 
+
 ## 期望DP
 
 ### 高次期望
@@ -3298,6 +3712,104 @@ $=f[i-1]+(3×b[i−1]+3×a[i−1]+1)×p[i])$
         for(int i=1;i<=m;++i){
             printf("%lld\n",ans[i]);
         }
+        return 0;
+    }
+
+## K-D Tree
+
+    const int N=2e6+5;
+    int n,lc[N],rc[N];
+    const int K=2;//维度 
+    struct Node{
+        double x[K];
+    }s[N];
+    double lb[K][N],ub[K][N];
+    double dist(int a,int b){
+        double ret=0;
+        for(int i=0;i<K;++i){
+            double t=s[a].x[i]-s[b].x[i];
+            ret+=t*t;
+        }
+        return ret;
+    }
+    int fg;
+    struct cmp{
+        bool operator () (const Node &a,const Node &b){
+            return a.x[fg]<b.x[fg];
+        }
+    };
+    void maintain(int x){
+        for(int i=0;i<K;++i){
+            lb[i][x]=ub[i][x]=s[x].x[i];
+        }
+        if(lc[x]){
+            for(int i=0;i<K;++i){
+                lb[i][x]=min(lb[i][x],lb[i][lc[x]]);
+                ub[i][x]=max(ub[i][x],ub[i][lc[x]]);
+            }
+        }
+        if(rc[x]){
+            for(int i=0;i<K;++i){
+                lb[i][x]=min(lb[i][x],lb[i][rc[x]]);
+                ub[i][x]=max(ub[i][x],ub[i][rc[x]]);
+            }
+        }
+    }
+    int build(int l,int r,int dep){
+        if(l>=r) return 0;
+        int mid=l+r>>1;
+        fg=dep%K;//要比较的第几个元素 
+        nth_element(s+l,s+mid,s+r+1,cmp());
+        lc[mid]=build(l,mid-1,dep+1);
+        rc[mid]=build(mid+1,r,dep+1);
+        maintain(mid);
+        return mid;
+    }
+    double f(int a,int b){
+        double ret=0;
+        for(int i=0;i<K;++i){
+            if(lb[i][b]>s[a].x[i]){
+                double t=lb[i][b]-s[a].x[i];
+                ret+=t*t;
+            }
+            if(ub[i][b]<s[a].x[i]){
+                double t=s[a].x[i]-ub[i][b];
+                ret+=t*t;
+            }
+        }
+        return ret;
+    }
+    double ans=2e18;
+    void query(int l,int r,int x){
+        if(l>r) return;
+        int mid=l+r>>1;
+        if(mid!=x) ans=min(ans,dist(x,mid));
+        if(l==r) return;
+        double d1=f(x,lc[mid]),d2=f(x,rc[mid]);
+        if(d1<ans&&d2<ans){
+            if(d1<d2){
+                query(l,mid-1,x);
+                if(d2<ans) query(mid+1,r,x);
+            }else{
+                query(mid+1,r,x);
+                if(d1<ans) query(l,mid-1,x);
+            }
+        }else{
+            if(d1<ans) query(l,mid-1,x);
+            if(d2<ans) query(mid+1,r,x);
+        }
+    }
+    int main(){
+        //freopen("P1257_2.in","r",stdin);
+        scanf("%d",&n);
+        for(int i=1;i<=n;++i){
+            scanf("%lf%lf",&s[i].x[0],&s[i].x[1]);
+        }
+        build(1,n,0);
+        for(int i=1;i<=n;++i){
+            query(1,n,i);
+        }
+        printf("%.4lf",sqrt(ans));
         return 0;
     }
 
